@@ -1,4 +1,4 @@
-FROM arm64v8/node:18
+FROM node:18
 USER root
 
 RUN curl -fsSL https://code-server.dev/install.sh | sh
