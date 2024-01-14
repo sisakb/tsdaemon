@@ -1,0 +1,33 @@
+{
+	"workbench.colorTheme": "Default Dark Modern",
+	"editor.fontFamily": "Cascadia Code",
+	"workbench.startupEditor": "none",
+	"files.autoSave": "off",
+	"terminal.integrated.defaultProfile.linux": "tsdaemon",
+	"terminal.integrated.profiles.linux": {
+		"tsdaemon": {
+			"path": "/usr/bin/bash",
+			"args": ["-c", "pm2 logs tsdaemon --lines 100"],
+			"overrideName": true
+		},
+		"bash": {
+			"path": "bash",
+			"icon": "terminal-bash"
+		}
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Debug TSDaemon",
+				"port": 9229,
+				"request": "attach",
+				"skipFiles": ["<node_internals>/**"],
+				"outFiles": ["${workspaceFolder}/../dist/**/*.js", "!**/node_modules/**"],
+				"type": "node",
+				"restart": true
+			}
+		],
+		"compounds": []
+	}
+}

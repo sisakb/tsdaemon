@@ -1,0 +1,6 @@
+src/
+.vscode/
+.prettierrc
+tsconfig.json
+Dockerfile
+deploy/
