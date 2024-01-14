@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "nodemon -x \"tsc || exit 1\" -i \"dist/*\" -i \"automations/*\" -e \"ts,json\"",
     "build": "tsc",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "tsc",
+    "docker:build": "docker build -t sisakb/tsdaemon:latest ."
   },
   "keywords": [],
   "author": "",

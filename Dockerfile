@@ -1,14 +1,14 @@
-FROM node:18
+FROM arm64v8/node:18
 USER root
 
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
-RUN npm install pm2 -g
+RUN npm install pm2 -g --verbose
 
 WORKDIR /app
 RUN npm init -y
 RUN npm pkg set type="module"
-RUN npm install tsdaemon@1.0.6
+RUN npm install tsdaemon@1.0.6 --verbose
 RUN mkdir -p /app/automations
 
 COPY ./deploy/deploy.config.cjs /app/deploy.config.cjs
