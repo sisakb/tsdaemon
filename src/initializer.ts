@@ -1,4 +1,5 @@
 import dotenv from "dotenv"
+import * as prettier from "prettier"
 import path from "node:path"
 import fs from "node:fs"
 import ts from "typescript"
@@ -17,27 +18,51 @@ if (!token || !url) {
 	throw new Error("HASS_TOKEN or HASS_URL not found in environment variables.")
 }
 
-export const createTypes = () => {
+export const createTypes = async () => {
 	logger.info("Fetching entities from Home Assistant...")
-	const entities = HassApi.getInstance().getEntities()
 
-	const lights = entities.filter((entity) => entity.startsWith("light."))
-	const binarySensors = entities.filter((entity) => entity.startsWith("binary_sensor."))
-	const zones = entities.filter((entity) => entity.startsWith("zone."))
-	const persons = entities.filter((entity) => entity.startsWith("person."))
-	const devices = entities.filter((entity) => entity.startsWith("device_tracker."))
-	const climates = entities.filter((entity) => entity.startsWith("climate."))
+	try {
+		const entities = HassApi.getInstance().getEntities()
 
-	let output = "export type LightEntityName = '" + lights.join("' | '") + "'\n"
-	output += "export type BinarySensorEntityName = '" + binarySensors.join("' | '") + "'\n"
-	output += "export type ZoneEntityName = '" + zones.join("' | '") + "'\n"
-	output += "export type PersonEntityName = '" + persons.join("' | '") + "'\n"
-	output += "export type DeviceTrackerEntityName = '" + devices.join("' | '") + "'\n"
-	output += "export type ClimateEntityName = '" + climates.join("' | '") + "'\n"
-	output += "\n"
-	output += "export type EntityName = LightEntityName | BinarySensorEntityName | ZoneEntityName\n"
-	fs.writeFileSync(path.join(tsdaemonPath, "HassTypes.d.ts"), output)
-	logger.info("Types generated.")
+		const lights = entities.filter((entity) => entity.startsWith("light."))
+		const binarySensors = entities.filter((entity) => entity.startsWith("binary_sensor."))
+		const zones = entities.filter((entity) => entity.startsWith("zone."))
+		const persons = entities.filter((entity) => entity.startsWith("person."))
+		const devices = entities.filter((entity) => entity.startsWith("device_tracker."))
+		const climates = entities.filter((entity) => entity.startsWith("climate."))
+		const mediaPlayers = entities.filter((entity) => entity.startsWith("media_player."))
+
+		let output = ""
+
+		if (!entities?.length) {
+			logger.info("No entities found.")
+			output += "export type LightEntityName = string\n"
+			output += "export type BinarySensorEntityName = string\n"
+			output += "export type ZoneEntityName = string\n"
+			output += "export type PersonEntityName = string\n"
+			output += "export type DeviceTrackerEntityName = string\n"
+			output += "export type ClimateEntityName = string\n"
+			output += "export type MediaPlayerEntityName = string\n"
+			output += "\n"
+			output += "export type EntityName = string\n"
+		} else {
+			output += "export type LightEntityName = '" + lights.join("' | '") + "'\n"
+			output += "export type BinarySensorEntityName = '" + binarySensors.join("' | '") + "'\n"
+			output += "export type ZoneEntityName = '" + zones.join("' | '") + "'\n"
+			output += "export type PersonEntityName = '" + persons.join("' | '") + "'\n"
+			output += "export type DeviceTrackerEntityName = '" + devices.join("' | '") + "'\n"
+			output += "export type ClimateEntityName = '" + climates.join("' | '") + "'\n"
+			output += "export type MediaPlayerEntityName = '" + mediaPlayers.join("' | '") + "'\n"
+			output += "\n"
+			output += "export type EntityName = '" + entities.join("' | '") + "'\n"
+		}
+		output = await prettier.format(output, { parser: "typescript", semi: false, tabWidth: 4, useTabs: true })
+		fs.writeFileSync(path.join(tsdaemonPath, "HassTypes.d.ts"), output)
+		logger.info("Types generated.")
+	} catch (e) {
+		logger.error(e)
+		logger.error("Failed to generate types.")
+	}
 }
 
 export const getAutomationFilePaths = (root = process.cwd()) => {
@@ -49,7 +74,7 @@ export const getAutomationFilePaths = (root = process.cwd()) => {
 			const stat = fs.statSync(filePath)
 			if (stat.isDirectory() && file !== "node_modules") {
 				filePaths.push(...getAutomationFilePaths(filePath))
-			} else if (file.endsWith(".ts")) {
+			} else if (file.endsWith(".ts") && !file.endsWith(".d.ts")) {
 				filePaths.push(filePath)
 			}
 		} catch (e) {
@@ -59,7 +84,7 @@ export const getAutomationFilePaths = (root = process.cwd()) => {
 	return filePaths
 }
 
-export const compileAutomations = () => {
+export const compileAutomations = async () => {
 	const tsFiles = getAutomationFilePaths()
 	logger.info("Found automation files:", tsFiles.map((p) => path.relative(process.cwd(), p)).join(", "))
 	const program = ts.createProgram(tsFiles, {
@@ -96,7 +121,7 @@ export const compileAutomations = () => {
 	return tsFiles
 }
 
-export const startAutomations = (filePaths: string[]) => {
+export const startAutomations = async (filePaths: string[]) => {
 	for (const filePath of filePaths) {
 		const importUrl =
 			"file://" + path.join(process.cwd(), "dist", path.relative(process.cwd(), filePath).replace(".ts", ".js"))

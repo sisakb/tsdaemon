@@ -2,9 +2,9 @@ import { compileAutomations, createTypes, initializeHassApi, startAutomations } 
 
 const main = async () => {
 	await initializeHassApi()
-	createTypes()
-	const automations = compileAutomations()
-	startAutomations(automations)
+	await createTypes()
+	const automations = await compileAutomations()
+	await startAutomations(automations)
 }
 
 main()

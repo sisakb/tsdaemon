@@ -79,7 +79,7 @@ class HassApi {
 					logger.debug("Connected to Home Assistant")
 					resolve(this.instance)
 				},
-				{ once: true }
+				{ once: true },
 			)
 		})
 	}
@@ -91,7 +91,7 @@ class HassApi {
 	private addInternalListener(
 		type: InternalEventType,
 		callback: EventListenerCallback,
-		{ once = false, id = null }: { once?: boolean; id?: number | null } = {}
+		{ once = false, id = null }: { once?: boolean; id?: number | null } = {},
 	) {
 		if (!this.internalListeners.has(type)) this.internalListeners.set(type, [])
 		this.internalListeners.get(type)?.push({ type, callback, once, id })
@@ -117,6 +117,7 @@ class HassApi {
 	// WebSocket connection error
 	private onWsError(error: WebSocket.ErrorEvent) {
 		logger.debug(error)
+		logger.error("WebSocket connection error")
 	}
 
 	private async onAuthRequired() {
@@ -240,7 +241,7 @@ class HassApi {
 	}) {
 		const requestUrl = new URL(
 			`/history/period${startTime ? "/" + startTime?.toISOString() : ""}`,
-			`https://${this.url}`
+			`https://${this.url}`,
 		)
 		requestUrl.searchParams.append("filter_entity_id", entityId)
 		if (endTime) requestUrl.searchParams.append("end_time", endTime.toISOString())

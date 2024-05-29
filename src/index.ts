@@ -38,9 +38,12 @@ if (command === "start") {
 		.on("restart", function (files) {
 			logger.info("Detected changes in", files?.join(", "))
 		})
+		.on("crash", function () {
+			logger.info("App has crashed.")
+		})
 } else if (command === "generate") {
-	initializeHassApi().then(() => {
-		createTypes()
+	initializeHassApi().then(async () => {
+		await createTypes()
 		HassApi.getInstance().close()
 	})
 }
