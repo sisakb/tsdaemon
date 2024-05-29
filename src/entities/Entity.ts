@@ -1,5 +1,5 @@
+import { EntityName } from "../HassTypes.js"
 import HassApi, { type EntityState, type HassEvent } from "../HassApi.js"
-import { DeviceTrackerEntityName } from "../HassTypes.js"
 
 export type EntityAttributes = { [key: string]: any }
 type EntityEventListener = () => void
@@ -64,13 +64,76 @@ export type HassServices = {
 			aux_heat: string
 		}
 	}
+	media_player: {
+		turn_on: {}
+		turn_off: {}
+		toogle: {}
+		volume_up: {}
+		volume_down: {}
+		volume_set: {
+			volume_level: number
+		}
+		volume_mute: {
+			is_volume_muted: boolean
+		}
+		media_play_pause: {}
+		media_play: {}
+		media_pause: {}
+		media_stop: {}
+		media_next_track: {}
+		media_previous_track: {}
+		clear_playlist: {}
+		shuffle_set: {
+			shuffle: boolean
+		}
+		repeat_set: {
+			repeat: boolean
+		}
+		play_media: {
+			media_content_id: string
+			media_content_type: "music" | "tvshow" | "video" | "episode" | "channel" | "playlist"
+			enqueue: "add" | "next" | "play" | "replace"
+			announce: boolean
+			extra: {
+				title: string
+				thumb: string
+				current_time: number
+				autoplay: boolean
+				stream_type: "BUFFERED" | "LIVE" | "NONE"
+				subtitles: string
+				subtitles_lang: string
+				subtitles_mime: string
+				subtitle_id: string
+				enqueue: boolean
+				media_info: {
+					[key: string]: any
+				}
+				metadata: {
+					[key: string]: any
+				}
+			}
+		}
+		select_source: {
+			source: string
+		}
+		select_sound_mode: {
+			sound_mode: string
+		}
+		join: {
+			group_members: string[]
+		}
+		unjoin: {}
+		media_seek: {
+			seek_position: number | string
+		}
+	}
 }
 
 export class Entity<
-	EntityId extends string,
-	TState extends string = never,
-	TAttributes extends EntityAttributes = never,
-	TEventType extends string = never
+	EntityId extends EntityName,
+	TState extends string = any,
+	TAttributes extends EntityAttributes = any,
+	TEventType extends string = any,
 > {
 	protected _state: TState
 	protected _attributes: TAttributes
@@ -110,7 +173,7 @@ export class Entity<
 	protected callService<TDomain extends keyof HassServices, TService extends keyof HassServices[TDomain]>(
 		domain: TDomain,
 		service: TService,
-		service_data?: Partial<HassServices[TDomain][TService]>
+		service_data?: Partial<HassServices[TDomain][TService]>,
 	) {
 		HassApi.getInstance().callService(domain, service as string, service_data, this.entityId)
 	}

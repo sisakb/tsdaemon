@@ -7,6 +7,7 @@ export { Zone } from "./entities/Zone.js"
 export { Person } from "./entities/Person.js"
 export { DeviceTracker } from "./entities/DeviceTracker.js"
 export { Climate } from "./entities/Climate.js"
+export { MediaPlayer } from "./entities/MediaPlayer.js"
 
 import nodemon from "nodemon"
 import path from "node:path"
