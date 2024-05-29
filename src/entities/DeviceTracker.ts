@@ -62,11 +62,15 @@ interface AndroidNotificationData extends CommonNotificationData {
 	/** You can create notifications with a count up/down timer (chronometer) by passing the chronometer and when options. This feature requires at least Android 7.0. */
 	chronometer: boolean
 	/** The UTC timestamp to count up or down to with the chronometer option. */
-	when: string
+	when: number
+	/** */
+	when_relative: boolean
 	/** Change the notification status bar icon. */
 	notification_icon: string
 	/** Show the notification in Android Auto. */
 	car_ui: boolean
+	/** Only alert once */
+	alert_once: boolean
 }
 
 interface IosNotificationData extends CommonNotificationData {
@@ -105,7 +109,7 @@ export class DeviceTracker<TDevicePlatform extends "ios" | "android"> extends En
 		}: {
 			title?: string
 			data?: Partial<TDevicePlatform extends "ios" ? IosNotificationData : AndroidNotificationData>
-		}
+		},
 	) {
 		HassApi.getInstance().callService("notify", `mobile_app_${this.entityId.replace("device_tracker.", "")}`, {
 			title,
